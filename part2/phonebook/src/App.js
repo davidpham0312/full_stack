@@ -50,7 +50,7 @@ const App = () => {
       number: newNumber
     }
 
-    const listCheck = persons.filter(person => person.name.toLowerCase().includes(newName.toLowerCase()))
+    const listCheck = persons.filter(person => person.name.toLowerCase() === newName.toLowerCase())
     if (listCheck.length === 1) {
       const newContact = {...listCheck[0], number: newNumber}
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
@@ -71,22 +71,28 @@ const App = () => {
     }
     else {
 
-      personService.saveAdded(data).then(response => {
-        setMessage(`Added ${data.name}`)
-        setPersons(persons.concat(response))
-        setNewName('')
-        setNewNumber('')
-        setSearchResult(searchResult.concat(data))
-      })
-
+      personService
+        .saveAdded(data)
+        .then(response => {
+          setMessage(`Added ${data.name}`)
+          setPersons(persons.concat(response))
+          setNewName('')
+          setNewNumber('')
+          setSearchResult(searchResult.concat(data))
+        })
+        .catch(error => {  
+          setMessage(error.response.data.error)
+        })
     }
   }
 
   const toggleDelete = id => {
     const del = searchResult.filter(person => id === person.id)
+    console.log(del)
     const remain = searchResult.filter(person => id !== person.id)
     if (window.confirm(`Delete ${del[0].name}?`)) {
         personService.deletePerson(id).then(response => setPersons(remain))
+        setMessage(`deleted ${del.name}`)
     }
   }
 
